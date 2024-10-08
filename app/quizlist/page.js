@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function QuizListPage() {
   const [quizzes, setQuizzes] = useState([]);
@@ -28,8 +29,11 @@ export default function QuizListPage() {
   return (
     <div className="max-w-4xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6 text-center">รายการแบบทดสอบ</h1>
+      <Link href="/" className='bg-sky-300 text-black p-3 rounded-md hover:bg-sky-600'>
+      Back
+      </Link>
       {error && <p className="text-red-500 text-center">{error}</p>}
-      <ul>
+      <ul className='mt-6'>
         {quizzes.map((quiz) => (
           <li key={quiz.id} className="mb-4 p-4 bg-gray-100 rounded">
             <div className="flex justify-between items-center">

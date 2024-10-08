@@ -44,7 +44,7 @@ const QuizPage = () => {
   // Function to parse the extracted HTML content
   const parseContent = (html) => {
     console.log('Parsing content...');
-    // Split the HTML into lines based on tags
+    // Split the HTML into lines based on <br> tags or paragraph breaks
     const lines = html.split(/<br\s*\/?>/).filter((line) => line.trim() !== '');
     const parsedElements = [];
 
@@ -55,21 +55,21 @@ const QuizPage = () => {
       // Check if the line contains an image
       if (/<img\s+src=/.test(trimmedLine)) {
         console.log('Detected an image line.');
-        parsedElements.push({ type: 'image', html: trimmedLine });
+        parsedElements.push({ type: 'image', contentType: 'image', html: trimmedLine });
       }
       // Check if the line starts with a number (indicating a question)
       else if (/^\d+\./.test(trimmedLine)) {
         console.log('Detected a question line.');
-        parsedElements.push({ type: 'question', text: trimmedLine });
+        parsedElements.push({ type: 'question', contentType: 'question', text: trimmedLine });
       }
       // Check if the line starts with a letter followed by a closing parenthesis (indicating an option)
       else if (/^[a-dA-D]\)/.test(trimmedLine)) {
         console.log('Detected an option line.');
-        parsedElements.push({ type: 'option', text: trimmedLine });
+        parsedElements.push({ type: 'option', contentType: 'option', text: trimmedLine });
       } else {
         // Default case for any other type of line
         console.log('Detected a generic text line.');
-        parsedElements.push({ type: 'text', text: trimmedLine });
+        parsedElements.push({ type: 'text', contentType: 'text', text: trimmedLine });
       }
     });
 
@@ -85,7 +85,7 @@ const QuizPage = () => {
         {content.map((element, index) => {
           console.log(`Rendering element ${index + 1}:`, element);
           if (element.type === 'question') {
-            return <p  key={index}>{element.text}</p>;
+            return <p key={index}>{element.text}</p>;
           } else if (element.type === 'option') {
             return (
               <div key={index} style={{ marginLeft: '20px' }}>
@@ -96,7 +96,7 @@ const QuizPage = () => {
           } else if (element.type === 'image') {
             return <div key={index} dangerouslySetInnerHTML={{ __html: element.html }} />;
           } else {
-            return <p  key={index}>{element.text}</p>;
+            return <p key={index}>{element.text}</p>;
           }
         })}
       </div>

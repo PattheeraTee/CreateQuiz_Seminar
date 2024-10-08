@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import mammoth from 'mammoth'; // Mammoth.js สำหรับอ่านไฟล์ .doc/.docx
 import { v4 as uuidv4 } from 'uuid'; // ใช้สำหรับสร้าง unique id
+import Link from 'next/link';
 
 export default function QuizUploadTextOnly() {
     const [quizContent, setQuizContent] = useState('');
@@ -92,14 +93,14 @@ export default function QuizUploadTextOnly() {
     // ฟังก์ชันสำหรับแสดงคำถาม
     const displayQuestion = () => {
         return quiz.map((q, index) => (
-            <div key={index} className="bg-white p-4 my-4 shadow-lg rounded-lg">
-                <p className="font-semibold text-lg mb-2 text-black">{q.text}</p>
+            <div key={index} className="bg-gray-800 p-4 my-4 shadow-lg rounded-lg">
+                <p className="font-semibold text-lg mb-2 text-white">{q.text}</p>
                 <input
                     type="text"
                     name={`question${index}`}
                     value={q.answer}
                     onChange={(e) => handleAnswerChange(index, e.target.value)}
-                    className="w-full p-2 border rounded-lg"
+                    className="w-full p-2 border rounded-lg bg-gray-900 text-white"
                     placeholder="พิมพ์คำตอบที่นี่..."
                 />
             </div>
@@ -114,70 +115,80 @@ export default function QuizUploadTextOnly() {
     };
 
     const handleSubmit = async () => {
-        const payload = {
-            id: uuidv4(), // สร้าง unique id สำหรับ quiz
-            title: quizTitle, // ใช้ชื่อไฟล์เป็น title ของ quiz
-            questions: quiz.map((question) => ({
-                id: question.id,
-                quiz_id: question.quiz_id,
-                text: question.text,
-                type: question.type,
-                answer: question.answer, // ส่งคำตอบที่ผู้ใช้กรอก
-            })),
-        };
-
-        // console.log ข้อมูล payload ที่จะส่งไปยัง API
-        console.log('Sending quiz payload:', payload);
-
+        const formData = new FormData();
+        formData.append('id', uuidv4());
+        formData.append('title', quizTitle);
+      
+        const questions = quiz.map((question) => ({
+          id: question.id,
+          quiz_id: question.quiz_id,
+          text: question.text,
+          type: question.type,
+          answer: question.answer,
+        }));
+      
+        formData.append('questions', JSON.stringify(questions)); // ส่งในรูปแบบ JSON string
+      
+        console.log('Sending quiz formData:', questions);
+      
         try {
-            const response = await fetch('/api/testpost', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to create quiz');
-            }
-
-            const result = await response.json();
-            console.log('Quiz created successfully:', result);
+          const response = await fetch('/api/testpost', {
+            method: 'POST',
+            body: formData,
+          });
+      
+          if (!response.ok) {
+            throw new Error('Failed to create quiz');
+          }
+      
+          const result = await response.json();
+          console.log('Quiz created successfully:', result);
         } catch (error) {
-            console.error('Error creating quiz:', error);
+          console.error('Error creating quiz:', error);
         }
-    };
+      };
 
     return (
-        <div className="max-w-4xl mx-auto p-8 bg-gray-50">
-            <h1 className="text-3xl font-bold mb-6 text-center text-black">สร้างแบบทดสอบจากไฟล์ .txt และ .doc (คำถามเท่านั้น)</h1>
+        <div className="max-w-4xl mx-auto p-8 bg-black">
+            <h1 className="text-3xl font-bold mb-6 text-center text-white">สร้างแบบทดสอบจากไฟล์ .txt และ .doc (คำถามเท่านั้น)</h1>
+            
+            <Link href="/" className="bg-sky-300 text-black p-3 rounded-md hover:bg-sky-600">
+                Back
+            </Link>
+            
             <div className="flex justify-center mb-6">
                 <input
                     type="file"
                     accept=".txt, .doc, .docx"
                     onChange={handleFileUpload}
-                    className="bg-blue-50 border border-blue-300 rounded-lg p-2 w-full max-w-lg text-black"
+                    className="bg-gray-800 text-white border border-gray-600 rounded-lg p-2 w-full max-w-lg"
                 />
             </div>
+            
             {errorMessage && (
                 <p className="text-red-500 mb-4 text-center">{errorMessage}</p>
             )}
+            
             <div id="quizContainer">
                 {quiz.length > 0 ? (
                     displayQuestion()
                 ) : (
-                    <p className="text-center text-gray-900">อัปโหลดไฟล์เพื่อสร้างแบบทดสอบ</p>
+                    <p className="text-center text-gray-400">อัปโหลดไฟล์เพื่อสร้างแบบทดสอบ</p>
                 )}
             </div>
+            
             {quiz.length > 0 && (
                 <div className="flex justify-center mt-6">
+                    <Link href="/quizlist">
+
                     <button
                         onClick={handleSubmit}
                         className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
                     >
                         Create Quiz
                     </button>
+                    </Link>
+
                 </div>
             )}
         </div>

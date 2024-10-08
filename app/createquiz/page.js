@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import axios from 'axios';
+import Link from "next/link";
 
 export default function Createquiz() {
   const [questions, setQuestions] = useState([]);
@@ -120,25 +121,25 @@ export default function Createquiz() {
 
     // Prepare questions data
     const updatedQuestions = questions.map((question, questionIndex) => {
-        // Add the question image file to the formData
-        if (question.imageFile) {
-            formData.append(`questionImage-${questionIndex}`, question.imageFile);
+      // Add the question image file to the formData
+      if (question.imageFile) {
+        formData.append(`questionImage-${questionIndex}`, question.imageFile);
+      }
+
+      // Add the option image files to the formData
+      question.optionImageFiles.forEach((optionImageFile, optionIndex) => {
+        if (optionImageFile) {
+          formData.append(`optionImage-${questionIndex}-${optionIndex}`, optionImageFile);
         }
+      });
 
-        // Add the option image files to the formData
-        question.optionImageFiles.forEach((optionImageFile, optionIndex) => {
-            if (optionImageFile) {
-                formData.append(`optionImage-${questionIndex}-${optionIndex}`, optionImageFile);
-            }
-        });
-
-        // Include the options and answer in the question object
-        return {
-            ...question,
-            options: question.options, // Include options in the question data
-            answer: question.answer,   // Include the selected answer
-            index: questionIndex,      // Include the index to match with images in FormData
-        };
+      // Include the options and answer in the question object
+      return {
+        ...question,
+        options: question.options, // Include options in the question data
+        answer: question.answer,   // Include the selected answer
+        index: questionIndex,      // Include the index to match with images in FormData
+      };
     });
 
     // Add the questions JSON data to the formData
@@ -146,28 +147,30 @@ export default function Createquiz() {
 
     // Debugging: Check all formData entries
     for (let pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
+      console.log(`${pair[0]}: ${pair[1]}`);
     }
 
     try {
-        const response = await axios.post('/api/testpost', formData);
-        if (response.status !== 200) {
-            throw new Error("Failed to submit quiz");
-        }
+      const response = await axios.post('/api/testpost', formData);
+      if (response.status !== 200) {
+        throw new Error("Failed to submit quiz");
+      }
 
-        const result = response.data;
-        console.log("Quiz submitted successfully:", result);
+      const result = response.data;
+      console.log("Quiz submitted successfully:", result);
     } catch (error) {
-        console.error("Error submitting quiz:", error);
+      console.error("Error submitting quiz:", error);
     }
-};
+  };
 
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Quiz Builder</h1>
-
-      <div className="mb-4">
+      <h1 className="text-2xl font-bold mb-4">สร้างแบบทดสอบ</h1>
+      <Link href="/" className="bg-sky-300 text-black p-3 rounded-md hover:bg-gray-600">
+        Back
+      </Link>
+      <div className="mb-4 mt-4">
         <label className="block text-lg font-medium mb-2">Quiz Title:</label>
         <input
           type="text"
@@ -193,8 +196,8 @@ export default function Createquiz() {
                 />
 
                 <label htmlFor={`upload-question-${questionIndex}`} className="absolute right-0 top-0 mt-2 mr-2 cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-black">
-                    <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8 text-black">
+                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clip-rule="evenodd" />
                   </svg>
                 </label>
                 <input
@@ -257,10 +260,11 @@ export default function Createquiz() {
 
                         {(question.type === "radio" || question.type === "checkbox") && (
                           <>
-                            <label htmlFor={`upload-option-${questionIndex}-${optionIndex}`} className="cursor-pointer text-blue-600 hover:underline">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-white m-2">
-                                <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+                            <label htmlFor={`upload-option-${questionIndex}-${optionIndex}`} className="cursor-pointer hover:underline">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8">
+                                <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clip-rule="evenodd" />
                               </svg>
+
                             </label>
                             <input
                               id={`upload-option-${questionIndex}-${optionIndex}`}
@@ -391,7 +395,7 @@ export default function Createquiz() {
                   className="w-full p-2 border rounded text-black"
                   value={question.answer}
                   onChange={(e) => handleTextChange(questionIndex, e.target.value)}
-                  
+
                 />
               ) : question.type === "date" ? (
                 <input
@@ -399,7 +403,7 @@ export default function Createquiz() {
                   value={question.date}
                   className="w-full p-2 border rounded text-black"
                   onChange={(e) => handleDateChange(questionIndex, e.target.value)}
-                 
+
                 />
               ) : null}
 
