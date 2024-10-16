@@ -1,10 +1,10 @@
 import Image from "next/image";
-import winter from "../../public/images/1726344067811.jpg";
+import winter from "../components/images/taeyeon.png";
 import Link from "next/link";
 
 export default function Header() {
   return (
-    <header className="flex items-center justify-between bg-white border-b-2 border-black p-4">
+    <header className="flex items-center justify-between bg-white border-b border-black p-4">
       {/* Left: Logo */}
       <div className="flex items-center">
         <span className="text-2xl font-bold text-black">QUIZ LOGO</span>
@@ -24,7 +24,7 @@ export default function Header() {
           alt="Profile"
           width={40}    // ปรับขนาดภาพให้ชัดเจน
           height={40}
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover border border-black"
         />
       </div>
     </header>
